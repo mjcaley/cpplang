@@ -14,7 +14,10 @@ target_link_libraries(cpplang libcpplang)
 configure_file(example.txt example.txt)
 
 # Unit tests
-add_executable(cpplang-tests tests/main.cpp tests/test_context.cpp)
+add_executable(cpplang-tests
+        tests/main.cpp
+        tests/test_context.cpp
+        tests/test_state.cpp)
 add_library(Catch2 INTERFACE)
 target_include_directories(Catch2 INTERFACE subprojects/Catch2/)
 target_link_libraries(cpplang-tests libcpplang Catch2)

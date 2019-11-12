@@ -1,0 +1,80 @@
+#include "catch.hpp"
+#include <sstream>
+#include <vector>
+#include "States.hpp"
+#include "Context.hpp"
+
+
+template<typename ContextCls>
+class PublicState : public cpplang::State<ContextCls>
+{
+public:
+    explicit PublicState(ContextCls& context) : cpplang::State<ContextCls>(context) {}
+
+    using CharacterCollection = typename cpplang::State<ContextCls>::CharacterCollection;
+
+    const ContextCls& get_context() { return context; }
+
+    std::string public_append_while(const CharacterCollection& characters)
+    {
+        return cpplang::State<ContextCls>::append_while(characters);
+    }
+};
+
+auto context_at_current(const std::string& input)
+{
+    auto context = cpplang::Context { std::stringstream(input) };
+    context.advance();
+    context.advance();
+
+    return context;
+}
+
+TEST_CASE("Base state", "[lexer][states]")
+{
+    std::string input { "abc" };
+
+    SECTION("append_while single character")
+    {
+        auto context = context_at_current(input);
+        PublicState state { context };
+        auto result = state.public_append_while({'a'});
+
+        REQUIRE(result == "a");
+        REQUIRE(*state.get_context().get_current_char() == 'b');
+    }
+
+    SECTION("append_while multiple characters")
+    {
+        auto context = context_at_current(input);
+        PublicState state { context };
+        auto result = state.public_append_while({'a', 'b'});
+
+        REQUIRE(result == "ab");
+        REQUIRE(*state.get_context().get_current_char() == 'c');
+    }
+
+    SECTION("append_while all characters in input")
+    {
+        auto context = context_at_current(input);
+        PublicState state { context };
+        auto result = state.public_append_while({'a', 'b', 'c'});
+
+        REQUIRE(result == "abc");
+        REQUIRE(state.get_context().get_current().has_value() == false);
+    }
+}
+
+TEST_CASE("Base state empty string", "[lexer][states]")
+{
+    std::string input;
+
+    SECTION("append_while empty string", "[lexer][states]")
+    {
+        auto context = context_at_current(input);
+        PublicState state {context};
+        auto result = state.public_append_while({'a'});
+
+        REQUIRE(result.empty());
+    }
+}

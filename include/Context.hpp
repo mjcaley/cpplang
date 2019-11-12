@@ -24,13 +24,20 @@ namespace cpplang
     class Context
     {
     public:
+        explicit Context(IStream&& input) : stream(std::move(input)) {};
+        Context(const Context&) = delete;
+        Context(Context&& context) noexcept :
+            indents(context.indents), brackets(context.brackets),
+            current(context.current), next(context.next),
+            stream(std::move(context.stream)) {}
+        virtual ~Context() = default;
+
+        Context& operator=(const Context&) = delete;
+
         using StreamChar = typename IStream::char_type;
         using StreamPos = typename IStream::int_type;
         using PositionCls = typename cpplang::Position<StreamPos>;
         using CharacterCls = typename cpplang::Character<StreamChar, PositionCls>;
-
-        explicit Context(IStream&& input) : stream(std::move(input)) {};
-        ~Context() = default;
 
         [[nodiscard]] std::optional<CharacterCls> get_current() const
         {
