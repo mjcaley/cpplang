@@ -20,6 +20,8 @@ namespace cpplang
 
         using CharacterCollection = std::vector<typename ContextCls::StreamChar>;
 
+        const CharacterCollection whitespace { '\v', '\f', ' ' };
+
         std::string append_while(const CharacterCollection& characters)
         {
             std::string found;
@@ -73,6 +75,19 @@ namespace cpplang
                 auto current = *context.get_current_char();
                 auto result = std::find(std::begin(characters), std::end(characters), current);
                 if (result != std::end(characters)) {
+                    context.advance();
+                } else {
+                    break;
+                }
+            }
+        }
+
+        void skip_whitespace()
+        {
+            while (context.get_current()) {
+                auto current = *context.get_current_char();
+                auto result = std::find(std::begin(whitespace), std::end(whitespace), current);
+                if (result != std::end(whitespace)) {
                     context.advance();
                 } else {
                     break;

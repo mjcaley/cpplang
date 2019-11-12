@@ -34,6 +34,11 @@ public:
     {
         cpplang::State<ContextCls>::skip_while(characters);
     }
+
+    void public_skip_whitespace()
+    {
+        cpplang::State<ContextCls>::skip_whitespace();
+    }
 };
 
 auto context_at_current(const std::string& input)
@@ -150,12 +155,26 @@ TEST_CASE("Base state empty string", "[lexer][states]")
 {
     std::string input;
 
-    SECTION("append_while empty string", "[lexer][states]")
+    SECTION("append_while empty string")
     {
         auto context = context_at_current(input);
         PublicState state {context};
         auto result = state.public_append_while({'a'});
 
         REQUIRE(result.empty());
+    }
+}
+
+TEST_CASE("Base state whitespace", "[lexer][state]")
+{
+    std::string input { " \v\fabc" };
+
+    SECTION("skip whitespace")
+    {
+        auto context = context_at_current(input);
+        PublicState state {context};
+        state.public_skip_whitespace();
+
+        REQUIRE(state.get_context().get_current_char() == 'a');
     }
 }
