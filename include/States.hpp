@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <array>
 #include <string>
 #include <vector>
 
@@ -15,12 +16,12 @@ namespace cpplang
     public:
         explicit State(ContextCls& context) : context(context) {}
 
+        using CharacterCollection = std::vector<typename ContextCls::StreamChar>;
+
     protected:
         ContextCls& context;
 
-        using CharacterCollection = std::vector<typename ContextCls::StreamChar>;
-
-        const CharacterCollection whitespace { '\v', '\f', ' ' };
+        static constexpr std::array<typename ContextCls::StreamChar, 3> whitespace { {'\v', '\f', ' '} };
 
         std::string append_while(const CharacterCollection& characters)
         {
