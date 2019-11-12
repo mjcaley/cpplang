@@ -108,11 +108,37 @@ namespace cpplang
             }
         }
 
+        bool match(const CharacterCollection& characters)
+        {
+            if (context.get_current_char())
+            {
+                auto result = std::find(std::begin(characters), std::end(characters), *context.get_current_char());
+                return result != std::end(characters);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         bool match_next(const typename ContextCls::StreamChar character)
         {
             if (context.get_next_char().has_value())
             {
                 return *context.get_next_char() == character;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        bool match_next(const CharacterCollection& characters)
+        {
+            if (context.get_next_char())
+            {
+                auto result = std::find(std::begin(characters), std::end(characters), *context.get_next_char());
+                return result != std::end(characters);
             }
             else
             {

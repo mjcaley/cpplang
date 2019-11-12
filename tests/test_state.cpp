@@ -45,9 +45,19 @@ public:
         return cpplang::State<ContextCls>::match(character);
     }
 
+    bool public_match(const CharacterCollection& characters)
+    {
+        return cpplang::State<ContextCls>::match(characters);
+    }
+
     bool public_match_next(const typename ContextCls::StreamChar character)
     {
         return cpplang::State<ContextCls>::match_next(character);
+    }
+
+    bool public_match_next(const CharacterCollection& characters)
+    {
+        return cpplang::State<ContextCls>::match_next(characters);
     }
 };
 
@@ -176,6 +186,22 @@ TEST_CASE("Base state", "[lexer][states]")
         REQUIRE(state.public_match('a'));
     }
 
+    SECTION("match doesn't match collection")
+    {
+        auto context = context_at_current(input);
+        PublicState state {context};
+
+        REQUIRE_FALSE(state.public_match({'d', 'e'}));
+    }
+
+    SECTION("match matches collection")
+    {
+        auto context = context_at_current(input);
+        PublicState state {context};
+
+        REQUIRE(state.public_match({'a', 'b', 'c'}));
+    }
+
     SECTION("match_next doesn't match")
     {
         auto context = context_at_current(input);
@@ -190,6 +216,22 @@ TEST_CASE("Base state", "[lexer][states]")
         PublicState state {context};
 
         REQUIRE(state.public_match_next('b'));
+    }
+
+    SECTION("match_next doesn't match collection")
+    {
+        auto context = context_at_current(input);
+        PublicState state {context};
+
+        REQUIRE_FALSE(state.public_match_next({'d', 'e'}));
+    }
+
+    SECTION("match_next matches collection")
+    {
+        auto context = context_at_current(input);
+        PublicState state {context};
+
+        REQUIRE(state.public_match_next({'a', 'b', 'c'}));
     }
 }
 
