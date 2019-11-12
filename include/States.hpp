@@ -53,5 +53,18 @@ namespace cpplang
 
             return found;
         }
+
+        void skip_until(const CharacterCollection& characters)
+        {
+            while (context.get_current()) {
+                auto current = *context.get_current_char();
+                auto result = std::find(std::begin(characters), std::end(characters), current);
+                if (result == std::end(characters)) {
+                    context.advance();
+                } else {
+                    break;
+                }
+            }
+        }
     };
 }

@@ -24,6 +24,11 @@ public:
     {
         return cpplang::State<ContextCls>::append_while_not(characters);
     }
+
+    std::string public_skip_until(const CharacterCollection& characters)
+    {
+        return cpplang::State<ContextCls>::skip_until(characters);
+    }
 };
 
 auto context_at_current(const std::string& input)
@@ -97,6 +102,24 @@ TEST_CASE("Base state", "[lexer][states]")
 
         REQUIRE(result.empty());
         REQUIRE(*state.get_context().get_current_char() == 'a');
+    }
+
+    SECTION("skip_until one character")
+    {
+        auto context = context_at_current(input);
+        PublicState state { context };
+        state.public_append_while_not({'b'});
+
+        REQUIRE(*state.get_context().get_current_char() == 'b');
+    }
+
+    SECTION("skip_until multiple characters")
+    {
+        auto context = context_at_current(input);
+        PublicState state { context };
+        state.public_append_while_not({'b', 'c'});
+
+        REQUIRE(*state.get_context().get_current_char() == 'b');
     }
 }
 
