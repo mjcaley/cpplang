@@ -39,6 +39,11 @@ public:
     {
         cpplang::State<ContextCls>::skip_whitespace();
     }
+
+    bool public_match(const typename ContextCls::StreamChar character)
+    {
+        return cpplang::State<ContextCls>::match(character);
+    }
 };
 
 auto context_at_current(const std::string& input)
@@ -148,6 +153,22 @@ TEST_CASE("Base state", "[lexer][states]")
         state.public_skip_while({'a', 'b'});
 
         REQUIRE(*state.get_context().get_current_char() == 'c');
+    }
+
+    SECTION("match doesn't match")
+    {
+        auto context = context_at_current(input);
+        PublicState state {context};
+
+        REQUIRE_FALSE(state.public_match('d'));
+    }
+
+    SECTION("match matches")
+    {
+        auto context = context_at_current(input);
+        PublicState state {context};
+
+        REQUIRE(state.public_match('a'));
     }
 }
 
