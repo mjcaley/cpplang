@@ -107,5 +107,17 @@ namespace cpplang
                 return false;
             }
         }
+
+        bool match_next(const typename ContextCls::StreamChar character)
+        {
+            if (context.get_next_char().has_value())
+            {
+                return *context.get_next_char() == character;
+            }
+            else
+            {
+                return false;
+            }
+        }
     };
 }
