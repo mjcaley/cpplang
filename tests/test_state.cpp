@@ -13,11 +13,16 @@ public:
 
     using CharacterCollection = typename cpplang::State<ContextCls>::CharacterCollection;
 
-    const ContextCls& get_context() { return context; }
+    const ContextCls& get_context() { return this->context; }
 
     std::string public_append_while(const CharacterCollection& characters)
     {
         return cpplang::State<ContextCls>::append_while(characters);
+    }
+
+    std::string public_append_while_not(const CharacterCollection& characters)
+    {
+        return cpplang::State<ContextCls>::append_while_not(characters);
     }
 };
 
@@ -62,6 +67,36 @@ TEST_CASE("Base state", "[lexer][states]")
 
         REQUIRE(result == "abc");
         REQUIRE(state.get_context().get_current().has_value() == false);
+    }
+
+    SECTION("append_while_not single character")
+    {
+        auto context = context_at_current(input);
+        PublicState state { context };
+        auto result = state.public_append_while_not({'c'});
+
+        REQUIRE(result == "ab");
+        REQUIRE(*state.get_context().get_current_char() == 'c');
+    }
+
+    SECTION("append_while_not multiple characters")
+    {
+        auto context = context_at_current(input);
+        PublicState state { context };
+        auto result = state.public_append_while_not({'b', 'c'});
+
+        REQUIRE(result == "a");
+        REQUIRE(*state.get_context().get_current_char() == 'b');
+    }
+
+    SECTION("append_while_not all characters in input")
+    {
+        auto context = context_at_current(input);
+        PublicState state { context };
+        auto result = state.public_append_while_not({'a', 'b', 'c'});
+
+        REQUIRE(result.empty());
+        REQUIRE(*state.get_context().get_current_char() == 'a');
     }
 }
 

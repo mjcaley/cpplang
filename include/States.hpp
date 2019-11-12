@@ -27,7 +27,24 @@ namespace cpplang
                 auto current = *context.get_current_char();
                 auto result = std::find(std::begin(characters), std::end(characters), current);
                 if (result != std::end(characters)) {
-                    found += *result;
+                    found += current;
+                    context.advance();
+                } else {
+                    break;
+                }
+            }
+
+            return found;
+        }
+
+        std::string append_while_not(const CharacterCollection& characters)
+        {
+            std::string found;
+            while (context.get_current()) {
+                auto current = *context.get_current_char();
+                auto result = std::find(std::begin(characters), std::end(characters), current);
+                if (result == std::end(characters)) {
+                    found += current;
                     context.advance();
                 } else {
                     break;
