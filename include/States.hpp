@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <array>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "Tokens.hpp"
@@ -17,6 +18,9 @@ namespace cpplang
         explicit State(ContextCls& context) : context(context) {}
 
         using CharacterCollection = std::vector<typename ContextCls::StreamChar>;
+        using Token = cpplang::Token<typename ContextCls::StreamPos>;
+
+        virtual std::pair<Token, State> operator()() = delete;
 
     protected:
         ContextCls& context;
