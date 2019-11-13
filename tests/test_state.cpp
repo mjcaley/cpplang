@@ -1,7 +1,7 @@
 #include "catch.hpp"
 #include <sstream>
 #include <vector>
-#include "States.hpp"
+#include "States/States.hpp"
 #include "Context.hpp"
 
 
