@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <array>
 #include <exception>
+#include <memory>
 #include <string>
 #include <utility>
 #include <variant>
