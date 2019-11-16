@@ -6,58 +6,58 @@
 
 
 template<typename ContextCls>
-class PublicState : public cpplang::State<ContextCls>
+class PublicState : public cpplang::Mode<ContextCls>
 {
 public:
-    explicit PublicState(ContextCls& context) : cpplang::State<ContextCls>(context) {}
+    explicit PublicState(ContextCls& context) : cpplang::Mode<ContextCls>(context) {}
 
-    using CharacterCollection = typename cpplang::State<ContextCls>::CharacterCollection;
+    using CharacterCollection = typename cpplang::Mode<ContextCls>::CharacterCollection;
 
     const ContextCls& get_context() { return this->context; }
 
     std::string public_append_while(const CharacterCollection& characters)
     {
-        return cpplang::State<ContextCls>::append_while(characters);
+        return cpplang::Mode<ContextCls>::append_while(characters);
     }
 
     std::string public_append_while_not(const CharacterCollection& characters)
     {
-        return cpplang::State<ContextCls>::append_while_not(characters);
+        return cpplang::Mode<ContextCls>::append_while_not(characters);
     }
 
     void public_skip_until(const CharacterCollection& characters)
     {
-        cpplang::State<ContextCls>::skip_until(characters);
+        cpplang::Mode<ContextCls>::skip_until(characters);
     }
 
     void public_skip_while(const CharacterCollection& characters)
     {
-        cpplang::State<ContextCls>::skip_while(characters);
+        cpplang::Mode<ContextCls>::skip_while(characters);
     }
 
     void public_skip_whitespace()
     {
-        cpplang::State<ContextCls>::skip_whitespace();
+        cpplang::Mode<ContextCls>::skip_whitespace();
     }
 
     bool public_match(const typename ContextCls::StreamChar character)
     {
-        return cpplang::State<ContextCls>::match(character);
+        return cpplang::Mode<ContextCls>::match(character);
     }
 
     bool public_match(const CharacterCollection& characters)
     {
-        return cpplang::State<ContextCls>::match(characters);
+        return cpplang::Mode<ContextCls>::match(characters);
     }
 
     bool public_match_next(const typename ContextCls::StreamChar character)
     {
-        return cpplang::State<ContextCls>::match_next(character);
+        return cpplang::Mode<ContextCls>::match_next(character);
     }
 
     bool public_match_next(const CharacterCollection& characters)
     {
-        return cpplang::State<ContextCls>::match_next(characters);
+        return cpplang::Mode<ContextCls>::match_next(characters);
     }
 };
 

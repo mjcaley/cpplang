@@ -2,30 +2,34 @@
 
 #include <algorithm>
 #include <array>
+#include <exception>
 #include <string>
 #include <utility>
+#include <variant>
 #include <vector>
 
 #include "Tokens.hpp"
 
 
+// Start
+
 namespace cpplang
 {
     template<typename ContextCls>
-    class State
+    class Mode
     {
     public:
-        explicit State(ContextCls& context) : context(context) {}
+        explicit Mode(ContextCls& context) : context(context) {}
 
         using CharacterCollection = std::vector<typename ContextCls::StreamChar>;
         using Token = cpplang::Token<typename ContextCls::StreamPos>;
 
-        virtual std::pair<Token, State> operator()() = delete;
+        virtual std::variant<Token, std::unique_ptr<Mode>> step() = 0;
 
     protected:
         ContextCls& context;
 
-        static constexpr std::array<typename ContextCls::StreamChar, 3> whitespace { {'\v', '\f', ' '} };
+        static constexpr std::array<typename ContextCls::StreamChar, 3> whitespace { '\v', '\f', ' ' };
 
         std::string append_while(const CharacterCollection& characters)
         {
