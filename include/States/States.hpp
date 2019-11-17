@@ -21,20 +21,47 @@ namespace cpplang
         explicit Mode(ContextCls& context) : context(context) {}
 
         using CharacterCollection = std::vector<typename ContextCls::Char>;
-        using Tok = cpplang::Token<typename ContextCls::Pos>;
+        using Pos = typename ContextCls::Pos;
+        using Tok = cpplang::Token<Pos>;
         using ModePtr = std::unique_ptr<cpplang::Mode<ContextCls>>;
         using Union = std::variant<Tok, ModePtr>;
 
         virtual Union step()
         {
-            auto pos = context.get_current_position().value_or(ContextCls::Pos {});
-            Tok token { TokenType::ERROR, pos };
+            auto token = emit(TokenType::ERROR);
 
             return token;
         }
 
     protected:
         ContextCls& context;
+
+        Tok emit(TokenType type, Pos position, std::string value)
+        {
+            return Tok { type, position, value };
+        }
+
+        Tok emit(TokenType type, Pos position)
+        {
+            return emit(type, position, "");
+        }
+
+        Tok emit(TokenType type, std::string value)
+        {
+            auto pos = context.get_current_position().value_or(Pos {});
+            return emit(type, pos, value);
+        }
+
+        Tok emit(TokenType type)
+        {
+            return emit(type, "");
+        }
+
+        template<typename NextMode>
+        ModePtr transition()
+        {
+            return std::make_unique<NextMode>(context);
+        }
 
         static constexpr std::array<typename ContextCls::Char, 3> whitespace { '\v', '\f', ' ' };
 
@@ -170,14 +197,11 @@ namespace cpplang
 
         typename Mode<ContextCls>::Union step() override
         {
-            auto ret = std::make_unique<Start<ContextCls>>(this->context);
+            auto mode = transition<Start<ContextCls>>();
 
-            return ret;
+            return mode;
         }
     };
-
-    template<typename ContextCls>
-    class IsEOF;
 
     template<typename ContextCls>
     class Start : public Mode<ContextCls>
