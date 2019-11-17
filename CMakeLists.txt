@@ -17,7 +17,7 @@ configure_file(example.txt example.txt)
 add_executable(cpplang-tests
         tests/main.cpp
         tests/test_context.cpp
-        tests/test_mode.cpp tests/test_lexer.cpp tests/test_start.cpp)
+        tests/test_mode.cpp tests/test_lexer.cpp tests/test_start.cpp tests/lexer_fixtures.cpp)
 add_library(Catch2 INTERFACE)
 target_include_directories(Catch2 INTERFACE subprojects/Catch2/)
 target_link_libraries(cpplang-tests libcpplang Catch2)

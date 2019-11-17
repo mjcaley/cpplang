@@ -26,6 +26,11 @@ namespace cpplang
         using ModePtr = std::unique_ptr<cpplang::Mode<ContextCls>>;
         using Union = std::variant<Tok, ModePtr>;
 
+        virtual const char* name()
+        {
+            return "Mode";
+        }
+
         virtual Union step()
         {
             auto token = emit(TokenType::ERROR);
@@ -200,24 +205,15 @@ namespace cpplang
     template<typename ContextCls> class End;
 
     template<typename ContextCls>
-    class Indent : public Mode<ContextCls>
-    {
-    public:
-        explicit Indent(ContextCls& context) : Mode<ContextCls>(context) {}
-
-        typename Mode<ContextCls>::Union step() override
-        {
-            auto mode = transition<Start<ContextCls>>();
-
-            return mode;
-        }
-    };
-
-    template<typename ContextCls>
     class Start : public Mode<ContextCls>
     {
     public:
         explicit Start(ContextCls& context) : Mode<ContextCls>(context) {}
+
+        const char* name() override
+        {
+            return "Start";
+        }
 
         typename Mode<ContextCls>::Union step() override
         {
@@ -232,10 +228,34 @@ namespace cpplang
     };
 
     template<typename ContextCls>
+    class Indent : public Mode<ContextCls>
+    {
+    public:
+        explicit Indent(ContextCls& context) : Mode<ContextCls>(context) {}
+
+        const char* name() override
+        {
+            return "Indent";
+        }
+
+        typename Mode<ContextCls>::Union step() override
+        {
+            auto mode = transition<Start<ContextCls>>();
+
+            return mode;
+        }
+    };
+
+    template<typename ContextCls>
     class Dedent : Mode<ContextCls>
     {
     public:
         explicit Dedent(ContextCls& context) : Mode<ContextCls>(context) {}
+
+        const char* name() override
+        {
+            return "Dedent";
+        }
     };
 
     template<typename ContextCls>
@@ -243,6 +263,11 @@ namespace cpplang
     {
     public:
         explicit IsEOF(ContextCls& context) : Mode<ContextCls>(context) {}
+
+        const char* name() override
+        {
+            return "IsEOF";
+        }
 
         typename Mode<ContextCls>::Union step() override
         {
@@ -257,6 +282,11 @@ namespace cpplang
     {
     public:
         explicit Operators(ContextCls& context) : Mode<ContextCls>(context) {}
+
+        const char* name() override
+        {
+            return "Operators";
+        }
     };
 
     template<typename ContextCls>
@@ -264,6 +294,11 @@ namespace cpplang
     {
     public:
         explicit Number(ContextCls& context) : Mode<ContextCls>(context) {}
+
+        const char* name() override
+        {
+            return "Number";
+        }
     };
 
     template<typename ContextCls>
@@ -271,6 +306,11 @@ namespace cpplang
     {
     public:
         explicit String(ContextCls& context) : Mode<ContextCls>(context) {}
+
+        const char* name() override
+        {
+            return "String";
+        }
     };
 
     template<typename ContextCls>
@@ -278,6 +318,11 @@ namespace cpplang
     {
     public:
         explicit Word(ContextCls& context) : Mode<ContextCls>(context) {}
+
+        const char* name() override
+        {
+            return "Word";
+        }
     };
 
     template<typename ContextCls>
@@ -285,5 +330,10 @@ namespace cpplang
     {
     public:
         explicit End(ContextCls& context) : Mode<ContextCls>(context) {}
+
+        const char* name() override
+        {
+            return "End";
+        }
     };
 }
