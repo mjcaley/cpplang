@@ -20,12 +20,14 @@ namespace cpplang
     public:
         explicit Mode(ContextCls& context) : context(context) {}
 
-        using CharacterCollection = std::vector<typename ContextCls::StreamChar>;
-        using Tok = cpplang::Token<typename ContextCls::PositionCls>;
+        using CharacterCollection = std::vector<typename ContextCls::Char>;
+        using Tok = cpplang::Token<typename ContextCls::Pos>;
+        using ModePtr = std::unique_ptr<cpplang::Mode<ContextCls>>;
+        using Union = std::variant<Tok, ModePtr>;
 
-        virtual std::variant<Tok, std::unique_ptr<Mode>> step()
+        virtual Union step()
         {
-            auto pos = context.get_current_position().value_or(ContextCls::PositionCls {});
+            auto pos = context.get_current_position().value_or(ContextCls::Pos {});
             Tok token { TokenType::ERROR, pos };
 
             return token;
@@ -34,7 +36,7 @@ namespace cpplang
     protected:
         ContextCls& context;
 
-        static constexpr std::array<typename ContextCls::StreamChar, 3> whitespace { '\v', '\f', ' ' };
+        static constexpr std::array<typename ContextCls::Char, 3> whitespace { '\v', '\f', ' ' };
 
         std::string append_while(const CharacterCollection& characters)
         {
@@ -109,7 +111,7 @@ namespace cpplang
             }
         }
 
-        bool match(const typename ContextCls::StreamChar character)
+        bool match(const typename ContextCls::Char character)
         {
             if (context.get_current_char().has_value())
             {
@@ -134,7 +136,7 @@ namespace cpplang
             }
         }
 
-        bool match_next(const typename ContextCls::StreamChar character)
+        bool match_next(const typename ContextCls::Char character)
         {
             if (context.get_next_char().has_value())
             {
@@ -166,12 +168,9 @@ namespace cpplang
     public:
         explicit Indent(ContextCls& context) : Mode<ContextCls>(context) {}
 
-        using Tok = cpplang::Token<typename ContextCls::StreamPos>;
-        using ModePtr = std::unique_ptr<Mode<ContextCls>>;
-
-        std::variant<Tok, ModePtr> step() override
+        typename Mode<ContextCls>::Union step() override
         {
-            std::variant<Tok, ModePtr> ret = std::make_unique<Start<ContextCls>>(this->context);
+            auto ret = std::make_unique<Start<ContextCls>>(this->context);
 
             return ret;
         }
@@ -186,16 +185,13 @@ namespace cpplang
     public:
         explicit Start(ContextCls& context) : Mode<ContextCls>(context) {}
 
-        using Tok = cpplang::Token<typename ContextCls::PositionCls>;
-        using ModePtr = std::unique_ptr<Mode<ContextCls>>;
-
-        std::variant<Tok, ModePtr> step() override
+        typename Mode<ContextCls>::Union step() override
         {
             this->context.advance();
             this->context.advance();
             this->context.push_indent(0);
 
-            std::variant<Tok, ModePtr> ret = std::make_unique<IsEOF<ContextCls>>(this->context);
+            auto ret = std::make_unique<IsEOF<ContextCls>>(this->context);
 
             return ret;
         }
@@ -214,12 +210,9 @@ namespace cpplang
     public:
         explicit IsEOF(ContextCls& context) : Mode<ContextCls>(context) {}
 
-        using Tok = cpplang::Token<typename ContextCls::PositionCls>;
-        using ModePtr = std::unique_ptr<Mode<ContextCls>>;
-
-        std::variant<Tok, ModePtr> step() override
+        typename Mode<ContextCls>::Union step() override
         {
-            std::variant<Tok, ModePtr> ret = std::make_unique<Start<ContextCls>>(this->context);
+            auto ret = std::make_unique<Start<ContextCls>>(this->context);
 
             return ret;
         }

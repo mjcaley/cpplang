@@ -34,17 +34,17 @@ namespace cpplang
 
         Context& operator=(const Context&) = delete;
 
-        using StreamChar = typename IStream::char_type;
-        using StreamPos = typename IStream::int_type;
-        using PositionCls = typename cpplang::Position<StreamPos>;
-        using CharacterCls = typename cpplang::Character<StreamChar, PositionCls>;
+        using Char = typename IStream::char_type;
+        using Index = typename IStream::int_type;
+        using Pos = typename cpplang::Position<Index>;
+        using CharacterCls = typename cpplang::Character<Char, Pos>;
 
         [[nodiscard]] std::optional<CharacterCls> get_current() const
         {
             return current;
         }
 
-        std::optional<StreamChar> get_current_char() const
+        std::optional<Char> get_current_char() const
         {
             if (current)
             {
@@ -56,7 +56,7 @@ namespace cpplang
             }
         }
 
-        std::optional<PositionCls> get_current_position() const
+        std::optional<Pos> get_current_position() const
         {
             if (current)
             {
@@ -78,7 +78,7 @@ namespace cpplang
             indents.push(indent);
         }
 
-        std::optional<StreamChar> get_next_char() const
+        std::optional<Char> get_next_char() const
         {
             if (next)
             {
@@ -90,7 +90,7 @@ namespace cpplang
             }
         }
 
-        std::optional<PositionCls> get_next_position() const
+        std::optional<Pos> get_next_position() const
         {
             if (next)
             {
@@ -161,7 +161,7 @@ namespace cpplang
         std::optional<CharacterCls> advance()
         {
             current = next;
-            StreamChar next_character;
+            Char next_character;
             stream.get(next_character);
 
             if (stream.eof())
@@ -206,8 +206,8 @@ namespace cpplang
     private:
         IStream stream;
 
-        std::stack<StreamChar> indents;
-        std::stack<StreamChar> brackets;
+        std::stack<Char> indents;
+        std::stack<Char> brackets;
 
         std::optional<CharacterCls> current;
         std::optional<CharacterCls> next;

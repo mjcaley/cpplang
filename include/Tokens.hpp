@@ -73,15 +73,15 @@ namespace cpplang
         ERROR
     };
 
-    template<typename PositionCls>
+    template<typename Pos>
     class Token
     {
     public:
-        Token(TokenType type, PositionCls position, std::string value) : type(type), position(position), value(value) {}
-        Token(TokenType type, PositionCls position) : type(type), position(position), value({}) {}
+        Token(TokenType type, Pos position, std::string value) : type(type), position(position), value(value) {}
+        Token(TokenType type, Pos position) : type(type), position(position), value({}) {}
 
         TokenType type;
-        PositionCls position;
+        Pos position;
         std::string value;
     };
 }

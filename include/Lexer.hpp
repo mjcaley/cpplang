@@ -14,8 +14,6 @@ namespace cpplang
     public:
         explicit Lexer(IStream&& stream) : context(Context(std::move(stream))), state(std::make_unique<Start<Context<IStream>>>(context)) {}
 
-        using Pos = typename Context<IStream>::StreamPos;
-
     private:
         Context<IStream> context;
     	std::unique_ptr<Mode<Context<IStream>>> state;

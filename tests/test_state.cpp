@@ -15,7 +15,7 @@ public:
 
     using CharacterCollection = typename cpplang::Mode<ContextCls>::CharacterCollection;
 
-    std::variant<cpplang::Token<typename ContextCls::PositionCls>, std::unique_ptr<cpplang::Mode<ContextCls>>> step() override
+    typename cpplang::Mode<ContextCls>::Union step() override
     {
         return std::make_unique<PublicMode>(this->context);
     }
@@ -47,7 +47,7 @@ public:
         cpplang::Mode<ContextCls>::skip_whitespace();
     }
 
-    bool public_match(const typename ContextCls::StreamChar character)
+    bool public_match(const typename ContextCls::Char character)
     {
         return cpplang::Mode<ContextCls>::match(character);
     }
@@ -57,7 +57,7 @@ public:
         return cpplang::Mode<ContextCls>::match(characters);
     }
 
-    bool public_match_next(const typename ContextCls::StreamChar character)
+    bool public_match_next(const typename ContextCls::Char character)
     {
         return cpplang::Mode<ContextCls>::match_next(character);
     }
