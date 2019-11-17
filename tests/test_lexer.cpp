@@ -2,7 +2,7 @@
 #include <string>
 #include <sstream>
 
-#include "Lexer.hpp"
+#include "Lexer/Lexer.hpp"
 
 TEST_CASE("Lexer constructor", "[lexer]")
 {

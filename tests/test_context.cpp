@@ -2,7 +2,7 @@
 #include <istream>
 #include <string>
 #include <sstream>
-#include "Context.hpp"
+#include "Lexer/Context.hpp"
 
 
 TEST_CASE("Input stream", "[context]")

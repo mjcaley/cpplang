@@ -2,8 +2,8 @@
 #include <memory>
 #include <sstream>
 #include <vector>
-#include "States/States.hpp"
-#include "Context.hpp"
+#include "Lexer/Modes.hpp"
+#include "Lexer/Context.hpp"
 #include "Tokens.hpp"
 
 

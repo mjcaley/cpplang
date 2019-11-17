@@ -1,7 +1,7 @@
 #include <fstream>
 #include <iostream>
-#include "Context.hpp"
-#include "Lexer.hpp"
+#include "Lexer/Context.hpp"
+#include "Lexer/Lexer.hpp"
 
 
 int main() {
