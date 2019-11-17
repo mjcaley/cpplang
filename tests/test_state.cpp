@@ -1,17 +1,24 @@
 #include "catch.hpp"
+#include <memory>
 #include <sstream>
 #include <vector>
 #include "States/States.hpp"
 #include "Context.hpp"
+#include "Tokens.hpp"
 
 
 template<typename ContextCls>
-class PublicState : public cpplang::Mode<ContextCls>
+class PublicMode : public cpplang::Mode<ContextCls>
 {
 public:
-    explicit PublicState(ContextCls& context) : cpplang::Mode<ContextCls>(context) {}
+    explicit PublicMode(ContextCls& context) : cpplang::Mode<ContextCls>(context) {}
 
     using CharacterCollection = typename cpplang::Mode<ContextCls>::CharacterCollection;
+
+    std::variant<cpplang::Token<typename ContextCls::StreamPos>, std::unique_ptr<cpplang::Mode<ContextCls>>> step() override
+    {
+        return std::make_unique<PublicMode>(this->context);
+    }
 
     const ContextCls& get_context() { return this->context; }
 
@@ -77,7 +84,7 @@ TEST_CASE("Base state", "[lexer][states]")
     SECTION("append_while single character")
     {
         auto context = context_at_current(input);
-        PublicState state { context };
+        PublicMode state { context };
         auto result = state.public_append_while({'a'});
 
         REQUIRE(result == "a");
@@ -87,7 +94,7 @@ TEST_CASE("Base state", "[lexer][states]")
     SECTION("append_while multiple characters")
     {
         auto context = context_at_current(input);
-        PublicState state { context };
+        PublicMode state { context };
         auto result = state.public_append_while({'a', 'b'});
 
         REQUIRE(result == "ab");
@@ -97,7 +104,7 @@ TEST_CASE("Base state", "[lexer][states]")
     SECTION("append_while all characters in input")
     {
         auto context = context_at_current(input);
-        PublicState state { context };
+        PublicMode state { context };
         auto result = state.public_append_while({'a', 'b', 'c'});
 
         REQUIRE(result == "abc");
@@ -107,7 +114,7 @@ TEST_CASE("Base state", "[lexer][states]")
     SECTION("append_while_not single character")
     {
         auto context = context_at_current(input);
-        PublicState state { context };
+        PublicMode state { context };
         auto result = state.public_append_while_not({'c'});
 
         REQUIRE(result == "ab");
@@ -117,7 +124,7 @@ TEST_CASE("Base state", "[lexer][states]")
     SECTION("append_while_not multiple characters")
     {
         auto context = context_at_current(input);
-        PublicState state { context };
+        PublicMode state { context };
         auto result = state.public_append_while_not({'b', 'c'});
 
         REQUIRE(result == "a");
@@ -127,7 +134,7 @@ TEST_CASE("Base state", "[lexer][states]")
     SECTION("append_while_not all characters in input")
     {
         auto context = context_at_current(input);
-        PublicState state { context };
+        PublicMode state { context };
         auto result = state.public_append_while_not({'a', 'b', 'c'});
 
         REQUIRE(result.empty());
@@ -137,7 +144,7 @@ TEST_CASE("Base state", "[lexer][states]")
     SECTION("skip_until one character")
     {
         auto context = context_at_current(input);
-        PublicState state { context };
+        PublicMode state { context };
         state.public_skip_until({'b'});
 
         REQUIRE(*state.get_context().get_current_char() == 'b');
@@ -146,7 +153,7 @@ TEST_CASE("Base state", "[lexer][states]")
     SECTION("skip_until multiple characters")
     {
         auto context = context_at_current(input);
-        PublicState state { context };
+        PublicMode state { context };
         state.public_skip_until({'b', 'c'});
 
         REQUIRE(*state.get_context().get_current_char() == 'b');
@@ -155,7 +162,7 @@ TEST_CASE("Base state", "[lexer][states]")
     SECTION("skip_while one character")
     {
         auto context = context_at_current(input);
-        PublicState state { context };
+        PublicMode state { context };
         state.public_skip_while({'a'});
 
         REQUIRE(*state.get_context().get_current_char() == 'b');
@@ -164,7 +171,7 @@ TEST_CASE("Base state", "[lexer][states]")
     SECTION("skip_while multiple characters")
     {
         auto context = context_at_current(input);
-        PublicState state { context };
+        PublicMode state { context };
         state.public_skip_while({'a', 'b'});
 
         REQUIRE(*state.get_context().get_current_char() == 'c');
@@ -173,7 +180,7 @@ TEST_CASE("Base state", "[lexer][states]")
     SECTION("match doesn't match")
     {
         auto context = context_at_current(input);
-        PublicState state {context};
+        PublicMode state {context};
 
         REQUIRE_FALSE(state.public_match('d'));
     }
@@ -181,7 +188,7 @@ TEST_CASE("Base state", "[lexer][states]")
     SECTION("match matches")
     {
         auto context = context_at_current(input);
-        PublicState state {context};
+        PublicMode state {context};
 
         REQUIRE(state.public_match('a'));
     }
@@ -189,7 +196,7 @@ TEST_CASE("Base state", "[lexer][states]")
     SECTION("match doesn't match collection")
     {
         auto context = context_at_current(input);
-        PublicState state {context};
+        PublicMode state {context};
 
         REQUIRE_FALSE(state.public_match({'d', 'e'}));
     }
@@ -197,7 +204,7 @@ TEST_CASE("Base state", "[lexer][states]")
     SECTION("match matches collection")
     {
         auto context = context_at_current(input);
-        PublicState state {context};
+        PublicMode state {context};
 
         REQUIRE(state.public_match({'a', 'b', 'c'}));
     }
@@ -205,7 +212,7 @@ TEST_CASE("Base state", "[lexer][states]")
     SECTION("match_next doesn't match")
     {
         auto context = context_at_current(input);
-        PublicState state {context};
+        PublicMode state {context};
 
         REQUIRE_FALSE(state.public_match_next('d'));
     }
@@ -213,7 +220,7 @@ TEST_CASE("Base state", "[lexer][states]")
     SECTION("match_next matches")
     {
         auto context = context_at_current(input);
-        PublicState state {context};
+        PublicMode state {context};
 
         REQUIRE(state.public_match_next('b'));
     }
@@ -221,7 +228,7 @@ TEST_CASE("Base state", "[lexer][states]")
     SECTION("match_next doesn't match collection")
     {
         auto context = context_at_current(input);
-        PublicState state {context};
+        PublicMode state {context};
 
         REQUIRE_FALSE(state.public_match_next({'d', 'e'}));
     }
@@ -229,7 +236,7 @@ TEST_CASE("Base state", "[lexer][states]")
     SECTION("match_next matches collection")
     {
         auto context = context_at_current(input);
-        PublicState state {context};
+        PublicMode state {context};
 
         REQUIRE(state.public_match_next({'a', 'b', 'c'}));
     }
@@ -242,7 +249,7 @@ TEST_CASE("Base state empty string", "[lexer][states]")
     SECTION("append_while empty string")
     {
         auto context = context_at_current(input);
-        PublicState state {context};
+        PublicMode state {context};
         auto result = state.public_append_while({'a'});
 
         REQUIRE(result.empty());
@@ -256,9 +263,10 @@ TEST_CASE("Base state whitespace", "[lexer][state]")
     SECTION("skip whitespace")
     {
         auto context = context_at_current(input);
-        PublicState state {context};
+        PublicMode state {context};
         state.public_skip_whitespace();
 
         REQUIRE(state.get_context().get_current_char() == 'a');
     }
 }
+

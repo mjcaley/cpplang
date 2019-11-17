@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <variant>
 #include "Position.hpp"
 #include "States.hpp"
@@ -23,7 +24,9 @@ namespace cpplang
             this->context.advance();
             this->context.push_indent(0);
 
-            return std::make_unique(IsEOF<ContextCls>(this->context));
-        }
+            std::variant<Token<typename ContextCls::StreamPos>, std::unique_ptr<Mode<ContextCls>>> ret = std::make_unique<Start<ContextCls>>(this->context);
+
+            return ret;
+	}
     };
 }

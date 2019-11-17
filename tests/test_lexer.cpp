@@ -21,6 +21,6 @@ TEST_CASE("Emits token", "[lexer]")
     SECTION("Emits token")
     {
         cpplang::Lexer lexer { std::stringstream {input} };
-        auto result = lexer.emit();
+        //auto result = lexer.emit();
     };
 }
