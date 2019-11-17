@@ -12,8 +12,6 @@
 #include "Tokens.hpp"
 
 
-// Start
-
 namespace cpplang
 {
     template<typename ContextCls>
@@ -23,9 +21,15 @@ namespace cpplang
         explicit Mode(ContextCls& context) : context(context) {}
 
         using CharacterCollection = std::vector<typename ContextCls::StreamChar>;
-        using Token = cpplang::Token<typename ContextCls::StreamPos>;
+        using Tok = cpplang::Token<typename ContextCls::PositionCls>;
 
-        virtual std::variant<Token, std::unique_ptr<Mode>> step() = 0;
+        virtual std::variant<Tok, std::unique_ptr<Mode>> step()
+        {
+            auto pos = context.get_current_position().value_or(ContextCls::PositionCls {});
+            Tok token { TokenType::ERROR, pos };
+
+            return token;
+        }
 
     protected:
         ContextCls& context;
@@ -154,5 +158,105 @@ namespace cpplang
                 return false;
             }
         }
+    };
+
+    template<typename ContextCls>
+    class Indent : public Mode<ContextCls>
+    {
+    public:
+        explicit Indent(ContextCls& context) : Mode<ContextCls>(context) {}
+
+        using Tok = cpplang::Token<typename ContextCls::StreamPos>;
+        using ModePtr = std::unique_ptr<Mode<ContextCls>>;
+
+        std::variant<Tok, ModePtr> step() override
+        {
+            std::variant<Tok, ModePtr> ret = std::make_unique<Start<ContextCls>>(this->context);
+
+            return ret;
+        }
+    };
+
+    template<typename ContextCls>
+    class IsEOF;
+
+    template<typename ContextCls>
+    class Start : public Mode<ContextCls>
+    {
+    public:
+        explicit Start(ContextCls& context) : Mode<ContextCls>(context) {}
+
+        using Tok = cpplang::Token<typename ContextCls::PositionCls>;
+        using ModePtr = std::unique_ptr<Mode<ContextCls>>;
+
+        std::variant<Tok, ModePtr> step() override
+        {
+            this->context.advance();
+            this->context.advance();
+            this->context.push_indent(0);
+
+            std::variant<Tok, ModePtr> ret = std::make_unique<IsEOF<ContextCls>>(this->context);
+
+            return ret;
+        }
+    };
+
+    template<typename ContextCls>
+    class Dedent : Mode<ContextCls>
+    {
+    public:
+        explicit Dedent(ContextCls& context) : Mode<ContextCls>(context) {}
+    };
+
+    template<typename ContextCls>
+    class IsEOF : public Mode<ContextCls>
+    {
+    public:
+        explicit IsEOF(ContextCls& context) : Mode<ContextCls>(context) {}
+
+        using Tok = cpplang::Token<typename ContextCls::PositionCls>;
+        using ModePtr = std::unique_ptr<Mode<ContextCls>>;
+
+        std::variant<Tok, ModePtr> step() override
+        {
+            std::variant<Tok, ModePtr> ret = std::make_unique<Start<ContextCls>>(this->context);
+
+            return ret;
+        }
+    };
+
+    template<typename ContextCls>
+    class Operators : public Mode<ContextCls>
+    {
+    public:
+        explicit Operators(ContextCls& context) : Mode<ContextCls>(context) {}
+    };
+
+    template<typename ContextCls>
+    class Number : public Mode<ContextCls>
+    {
+    public:
+        explicit Number(ContextCls& context) : Mode<ContextCls>(context) {}
+    };
+
+    template<typename ContextCls>
+    class String : public Mode<ContextCls>
+    {
+    public:
+        explicit String(ContextCls& context) : Mode<ContextCls>(context) {}
+    };
+
+    template<typename ContextCls>
+    class Word : public Mode<ContextCls>
+    {
+    public:
+        explicit Word(ContextCls& context) : Mode<ContextCls>(context) {}
+    };
+
+    template<typename ContextCls>
+    class End : public Mode<ContextCls>
+    {
+    public:
+        explicit End(ContextCls& context) : Mode<ContextCls>(context) {}
     };
 }

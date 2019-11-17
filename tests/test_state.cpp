@@ -15,7 +15,7 @@ public:
 
     using CharacterCollection = typename cpplang::Mode<ContextCls>::CharacterCollection;
 
-    std::variant<cpplang::Token<typename ContextCls::StreamPos>, std::unique_ptr<cpplang::Mode<ContextCls>>> step() override
+    std::variant<cpplang::Token<typename ContextCls::PositionCls>, std::unique_ptr<cpplang::Mode<ContextCls>>> step() override
     {
         return std::make_unique<PublicMode>(this->context);
     }
