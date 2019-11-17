@@ -189,6 +189,16 @@ namespace cpplang
         }
     };
 
+    // Forward declare modes
+    template<typename ContextCls> class IsEOF;
+    template<typename ContextCls> class Indent;
+    template<typename ContextCls> class Dedent;
+    template<typename ContextCls> class Operators;
+    template<typename ContextCls> class Number;
+    template<typename ContextCls> class String;
+    template<typename ContextCls> class Word;
+    template<typename ContextCls> class End;
+
     template<typename ContextCls>
     class Indent : public Mode<ContextCls>
     {
