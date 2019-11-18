@@ -18,8 +18,10 @@ TEST_CASE("Start mode transitions to IsEOF", "[lexer][modes]")
 {
     cpplang::Start start { context_at_current(empty) };
     auto result = start.step();
-    if (auto iseof = std::get_if<decltype(start)::ModePtr>(&result))
+    auto iseof = std::get_if<decltype(start)::ModePtr>(&result);
+    REQUIRE(iseof);
+    if (iseof)
     {
-        REQUIRE(std::strcmp(iseof->name(), "IsEOF"));
+        REQUIRE(std::strcmp((*iseof)->name(), "IsEOF") == 0);
     }
 }
