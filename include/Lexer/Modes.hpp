@@ -224,7 +224,7 @@ namespace cpplang
             return "Start";
         }
 
-        Union step() override
+        typename Mode<IStream>::Union step() override
         {
             this->context.advance();
             this->context.advance();
