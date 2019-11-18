@@ -11,6 +11,7 @@
 
 #include "Lexer/Context.hpp"
 #include "Tokens.hpp"
+#include "Context.hpp"
 
 
 namespace cpplang
@@ -211,20 +212,27 @@ namespace cpplang
     public:
         explicit Start(Context<IStream>& context) : Mode<IStream>(context) {}
 
+        using type = Start<IStream>;
+        using Mode<IStream>::CharacterCollection;
+        using Mode<IStream>::Pos;
+        using Mode<IStream>::Tok;
+        using Mode<IStream>::ModePtr;
+        using Mode<IStream>::Union;
+
         const char* name() override
         {
             return "Start";
         }
 
-        typename Mode<IStream>::Union step() override
+        Union step() override
         {
             this->context.advance();
             this->context.advance();
             this->context.push_indent(0);
 
-            auto ret = std::make_unique<IsEOF<IStream>>(this->context);
+            auto mode = transition<IsEOF<IStream>>();
 
-            return ret;
+            return mode;
         }
     };
 
@@ -233,6 +241,13 @@ namespace cpplang
     {
     public:
         explicit Indent(Context<IStream>& context) : Mode<IStream>(context) {}
+
+        using type = Indent<IStream>;
+        using Mode<IStream>::CharacterCollection;
+        using Mode<IStream>::Pos;
+        using Mode<IStream>::Tok;
+        using Mode<IStream>::ModePtr;
+        using Mode<IStream>::Union;
 
         const char* name() override
         {
@@ -253,6 +268,13 @@ namespace cpplang
     public:
         explicit Dedent(Context<IStream>& context) : Mode<IStream>(context) {}
 
+        using type = Dedent<IStream>;
+        using Mode<IStream>::CharacterCollection;
+        using Mode<IStream>::Pos;
+        using Mode<IStream>::Tok;
+        using Mode<IStream>::ModePtr;
+        using Mode<IStream>::Union;
+
         const char* name() override
         {
             return "Dedent";
@@ -264,6 +286,13 @@ namespace cpplang
     {
     public:
         explicit IsEOF(Context<IStream>& context) : Mode<IStream>(context) {}
+
+        using type = IsEOF<IStream>;
+        using Mode<IStream>::CharacterCollection;
+        using Mode<IStream>::Pos;
+        using Mode<IStream>::Tok;
+        using Mode<IStream>::ModePtr;
+        using Mode<IStream>::Union;
 
         const char* name() override
         {
@@ -284,6 +313,13 @@ namespace cpplang
     public:
         explicit Operators(Context<IStream>& context) : Mode<IStream>(context) {}
 
+        using type = Operators<IStream>;
+        using Mode<IStream>::CharacterCollection;
+        using Mode<IStream>::Pos;
+        using Mode<IStream>::Tok;
+        using Mode<IStream>::ModePtr;
+        using Mode<IStream>::Union;
+
         const char* name() override
         {
             return "Operators";
@@ -295,6 +331,13 @@ namespace cpplang
     {
     public:
         explicit Number(Context<IStream>& context) : Mode<IStream>(context) {}
+
+        using type = Number<IStream>;
+        using Mode<IStream>::CharacterCollection;
+        using Mode<IStream>::Pos;
+        using Mode<IStream>::Tok;
+        using Mode<IStream>::ModePtr;
+        using Mode<IStream>::Union;
 
         const char* name() override
         {
@@ -308,6 +351,13 @@ namespace cpplang
     public:
         explicit String(Context<IStream>& context) : Mode<IStream>(context) {}
 
+        using type = String<IStream>;
+        using Mode<IStream>::CharacterCollection;
+        using Mode<IStream>::Pos;
+        using Mode<IStream>::Tok;
+        using Mode<IStream>::ModePtr;
+        using Mode<IStream>::Union;
+
         const char* name() override
         {
             return "String";
@@ -320,6 +370,13 @@ namespace cpplang
     public:
         explicit Word(Context<IStream>& context) : Mode<IStream>(context) {}
 
+        using type = Word<IStream>;
+        using Mode<IStream>::CharacterCollection;
+        using Mode<IStream>::Pos;
+        using Mode<IStream>::Tok;
+        using Mode<IStream>::ModePtr;
+        using Mode<IStream>::Union;
+
         const char* name() override
         {
             return "Word";
@@ -331,6 +388,13 @@ namespace cpplang
     {
     public:
         explicit End(Context<IStream>& context) : Mode<IStream>(context) {}
+
+        using type = End<IStream>;
+        using Mode<IStream>::CharacterCollection;
+        using Mode<IStream>::Pos;
+        using Mode<IStream>::Tok;
+        using Mode<IStream>::ModePtr;
+        using Mode<IStream>::Union;
 
         const char* name() override
         {
