@@ -9,21 +9,22 @@
 #include <variant>
 #include <vector>
 
+#include "Lexer/Context.hpp"
 #include "Tokens.hpp"
 
 
 namespace cpplang
 {
-    template<typename ContextCls>
+    template<typename IStream>
     class Mode
     {
     public:
-        explicit Mode(ContextCls& context) : context(context) {}
+        explicit Mode(Context<IStream>& context) : context(context) {}
 
-        using CharacterCollection = std::vector<typename ContextCls::Char>;
-        using Pos = typename ContextCls::Pos;
+        using CharacterCollection = std::vector<typename Context<IStream>::Char>;
+        using Pos = typename Context<IStream>::Pos;
         using Tok = cpplang::Token<Pos>;
-        using ModePtr = std::unique_ptr<cpplang::Mode<ContextCls>>;
+        using ModePtr = std::unique_ptr<cpplang::Mode<IStream>>;
         using Union = std::variant<Tok, ModePtr>;
 
         virtual const char* name()
@@ -39,7 +40,7 @@ namespace cpplang
         }
 
     protected:
-        ContextCls& context;
+        Context<IStream>& context;
 
         Tok emit(TokenType type, Pos position, std::string value)
         {
@@ -68,7 +69,7 @@ namespace cpplang
             return std::make_unique<NextMode>(context);
         }
 
-        static constexpr std::array<typename ContextCls::Char, 3> whitespace { '\v', '\f', ' ' };
+        static constexpr std::array<typename Context<IStream>::Char, 3> whitespace { '\v', '\f', ' ' };
 
         std::string append_while(const CharacterCollection& characters)
         {
@@ -143,7 +144,7 @@ namespace cpplang
             }
         }
 
-        bool match(const typename ContextCls::Char character)
+        bool match(const typename Context<IStream>::Char character)
         {
             if (context.get_current_char().has_value())
             {
@@ -168,7 +169,7 @@ namespace cpplang
             }
         }
 
-        bool match_next(const typename ContextCls::Char character)
+        bool match_next(const typename Context<IStream>::Char character)
         {
             if (context.get_next_char().has_value())
             {
@@ -195,62 +196,62 @@ namespace cpplang
     };
 
     // Forward declare modes
-    template<typename ContextCls> class IsEOF;
-    template<typename ContextCls> class Indent;
-    template<typename ContextCls> class Dedent;
-    template<typename ContextCls> class Operators;
-    template<typename ContextCls> class Number;
-    template<typename ContextCls> class String;
-    template<typename ContextCls> class Word;
-    template<typename ContextCls> class End;
+    template<typename IStream> class IsEOF;
+    template<typename IStream> class Indent;
+    template<typename IStream> class Dedent;
+    template<typename IStream> class Operators;
+    template<typename IStream> class Number;
+    template<typename IStream> class String;
+    template<typename IStream> class Word;
+    template<typename IStream> class End;
 
-    template<typename ContextCls>
-    class Start : public Mode<ContextCls>
+    template<typename IStream>
+    class Start : public Mode<IStream>
     {
     public:
-        explicit Start(ContextCls& context) : Mode<ContextCls>(context) {}
+        explicit Start(Context<IStream>& context) : Mode<IStream>(context) {}
 
         const char* name() override
         {
             return "Start";
         }
 
-        typename Mode<ContextCls>::Union step() override
+        typename Mode<IStream>::Union step() override
         {
             this->context.advance();
             this->context.advance();
             this->context.push_indent(0);
 
-            auto ret = std::make_unique<IsEOF<ContextCls>>(this->context);
+            auto ret = std::make_unique<IsEOF<IStream>>(this->context);
 
             return ret;
         }
     };
 
-    template<typename ContextCls>
-    class Indent : public Mode<ContextCls>
+    template<typename IStream>
+    class Indent : public Mode<IStream>
     {
     public:
-        explicit Indent(ContextCls& context) : Mode<ContextCls>(context) {}
+        explicit Indent(Context<IStream>& context) : Mode<IStream>(context) {}
 
         const char* name() override
         {
             return "Indent";
         }
 
-        typename Mode<ContextCls>::Union step() override
+        typename Mode<IStream>::Union step() override
         {
-            auto mode = transition<Start<ContextCls>>();
+            auto mode = transition<Start<IStream>>();
 
             return mode;
         }
     };
 
-    template<typename ContextCls>
-    class Dedent : Mode<ContextCls>
+    template<typename IStream>
+    class Dedent : Mode<IStream>
     {
     public:
-        explicit Dedent(ContextCls& context) : Mode<ContextCls>(context) {}
+        explicit Dedent(Context<IStream>& context) : Mode<IStream>(context) {}
 
         const char* name() override
         {
@@ -258,30 +259,30 @@ namespace cpplang
         }
     };
 
-    template<typename ContextCls>
-    class IsEOF : public Mode<ContextCls>
+    template<typename IStream>
+    class IsEOF : public Mode<IStream>
     {
     public:
-        explicit IsEOF(ContextCls& context) : Mode<ContextCls>(context) {}
+        explicit IsEOF(Context<IStream>& context) : Mode<IStream>(context) {}
 
         const char* name() override
         {
             return "IsEOF";
         }
 
-        typename Mode<ContextCls>::Union step() override
+        typename Mode<IStream>::Union step() override
         {
-            auto ret = std::make_unique<Start<ContextCls>>(this->context);
+            auto ret = std::make_unique<Start<IStream>>(this->context);
 
             return ret;
         }
     };
 
-    template<typename ContextCls>
-    class Operators : public Mode<ContextCls>
+    template<typename IStream>
+    class Operators : public Mode<IStream>
     {
     public:
-        explicit Operators(ContextCls& context) : Mode<ContextCls>(context) {}
+        explicit Operators(Context<IStream>& context) : Mode<IStream>(context) {}
 
         const char* name() override
         {
@@ -289,11 +290,11 @@ namespace cpplang
         }
     };
 
-    template<typename ContextCls>
-    class Number : public Mode<ContextCls>
+    template<typename IStream>
+    class Number : public Mode<IStream>
     {
     public:
-        explicit Number(ContextCls& context) : Mode<ContextCls>(context) {}
+        explicit Number(Context<IStream>& context) : Mode<IStream>(context) {}
 
         const char* name() override
         {
@@ -301,11 +302,11 @@ namespace cpplang
         }
     };
 
-    template<typename ContextCls>
-    class String : public Mode<ContextCls>
+    template<typename IStream>
+    class String : public Mode<IStream>
     {
     public:
-        explicit String(ContextCls& context) : Mode<ContextCls>(context) {}
+        explicit String(Context<IStream>& context) : Mode<IStream>(context) {}
 
         const char* name() override
         {
@@ -313,11 +314,11 @@ namespace cpplang
         }
     };
 
-    template<typename ContextCls>
-    class Word : public Mode<ContextCls>
+    template<typename IStream>
+    class Word : public Mode<IStream>
     {
     public:
-        explicit Word(ContextCls& context) : Mode<ContextCls>(context) {}
+        explicit Word(Context<IStream>& context) : Mode<IStream>(context) {}
 
         const char* name() override
         {
@@ -325,11 +326,11 @@ namespace cpplang
         }
     };
 
-    template<typename ContextCls>
-    class End : public Mode<ContextCls>
+    template<typename IStream>
+    class End : public Mode<IStream>
     {
     public:
-        explicit End(ContextCls& context) : Mode<ContextCls>(context) {}
+        explicit End(Context<IStream>& context) : Mode<IStream>(context) {}
 
         const char* name() override
         {

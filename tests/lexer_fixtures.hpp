@@ -6,64 +6,64 @@
 #include "Lexer/Context.hpp"
 #include "Lexer/Modes.hpp"
 
-template<typename ContextCls>
-class PublicMode : public cpplang::Mode<ContextCls>
+template<typename IStream>
+class PublicMode : public cpplang::Mode<IStream>
 {
 public:
-    explicit PublicMode(ContextCls& context) : cpplang::Mode<ContextCls>(context) {}
+    explicit PublicMode(cpplang::Context<IStream>& context) : cpplang::Mode<IStream>(context) {}
 
-    using CharacterCollection = typename cpplang::Mode<ContextCls>::CharacterCollection;
+    using CharacterCollection = typename cpplang::Mode<IStream>::CharacterCollection;
 
-    typename cpplang::Mode<ContextCls>::Union step() override
+    typename cpplang::Mode<IStream>::Union step() override
     {
         return std::make_unique<PublicMode>(this->context);
     }
 
-    const ContextCls& get_context() { return this->context; }
+    const cpplang::Context<IStream>& get_context() { return this->context; }
 
     std::string public_append_while(const CharacterCollection& characters)
     {
-        return cpplang::Mode<ContextCls>::append_while(characters);
+        return cpplang::Mode<IStream>::append_while(characters);
     }
 
     std::string public_append_while_not(const CharacterCollection& characters)
     {
-        return cpplang::Mode<ContextCls>::append_while_not(characters);
+        return cpplang::Mode<IStream>::append_while_not(characters);
     }
 
     void public_skip_until(const CharacterCollection& characters)
     {
-        cpplang::Mode<ContextCls>::skip_until(characters);
+        cpplang::Mode<IStream>::skip_until(characters);
     }
 
     void public_skip_while(const CharacterCollection& characters)
     {
-        cpplang::Mode<ContextCls>::skip_while(characters);
+        cpplang::Mode<IStream>::skip_while(characters);
     }
 
     void public_skip_whitespace()
     {
-        cpplang::Mode<ContextCls>::skip_whitespace();
+        cpplang::Mode<IStream>::skip_whitespace();
     }
 
-    bool public_match(const typename ContextCls::Char character)
+    bool public_match(const typename cpplang::Context<IStream>::Char character)
     {
-        return cpplang::Mode<ContextCls>::match(character);
+        return cpplang::Mode<IStream>::match(character);
     }
 
     bool public_match(const CharacterCollection& characters)
     {
-        return cpplang::Mode<ContextCls>::match(characters);
+        return cpplang::Mode<IStream>::match(characters);
     }
 
-    bool public_match_next(const typename ContextCls::Char character)
+    bool public_match_next(const typename cpplang::Context<IStream>::Char character)
     {
-        return cpplang::Mode<ContextCls>::match_next(character);
+        return cpplang::Mode<IStream>::match_next(character);
     }
 
     bool public_match_next(const CharacterCollection& characters)
     {
-        return cpplang::Mode<ContextCls>::match_next(characters);
+        return cpplang::Mode<IStream>::match_next(characters);
     }
 };
 

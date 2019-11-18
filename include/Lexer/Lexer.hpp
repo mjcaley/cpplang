@@ -12,10 +12,10 @@ namespace cpplang
     class Lexer
     {
     public:
-        explicit Lexer(IStream&& stream) : context(Context(std::move(stream))), state(std::make_unique<Start<Context<IStream>>>(context)) {}
+        explicit Lexer(IStream&& stream) : context(Context(std::move(stream))), state(std::make_unique<Start<IStream>>(context)) {}
 
     private:
         Context<IStream> context;
-    	std::unique_ptr<Mode<Context<IStream>>> state;
+    	std::unique_ptr<Mode<IStream>> state;
     };
 }
