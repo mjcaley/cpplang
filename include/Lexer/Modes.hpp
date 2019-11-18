@@ -230,7 +230,7 @@ namespace cpplang
             this->context.advance();
             this->context.push_indent(0);
 
-            auto mode = transition<IsEOF<IStream>>();
+            auto mode = this->template transition<IsEOF<IStream>>();
 
             return mode;
         }
@@ -256,7 +256,7 @@ namespace cpplang
 
         typename Mode<IStream>::Union step() override
         {
-            auto mode = transition<Start<IStream>>();
+            auto mode = this->template transition<Start<IStream>>();
 
             return mode;
         }
