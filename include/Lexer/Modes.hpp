@@ -318,17 +318,49 @@ namespace cpplang
         explicit Operators(Context<IStream>& context) : Mode<IStream>(context) {}
 
         using type = Operators<IStream>;
-        using Mode<IStream>::CharacterCollection;
-        using Mode<IStream>::Pos;
-        using Mode<IStream>::Tok;
-        using Mode<IStream>::ModePtr;
-        using Mode<IStream>::Union;
+        using Pos = typename Mode<IStream>::Pos;
+        using Tok = typename Mode<IStream>::Tok;
+        using CharacterCollection = typename Mode<IStream>::CharacterCollection;
+        using Union = typename Mode<IStream>::Union;
         using Mode<IStream>::context;
+        using Mode<IStream>::emit;
 
         const char* name() override
         {
             return "Operators";
         }
+
+        Union step() override
+        {
+            if (to_eof)
+            {
+                return this->template transition<IsEOF<IStream>>();
+            }
+
+            auto start_pos = context.get_current_position().value_or(Pos {});
+            std::string output;
+
+            if (this->match('+'))
+            {
+                context.advance();
+                if (this->match('='))
+                {
+                    context.advance();
+                    this->to_eof = true;
+                    return emit(TokenType::PLUS_ASSIGN, start_pos);
+                }
+                else
+                {
+                    this->to_eof = true;
+                    return emit(TokenType::PLUS);
+                }
+                
+            }
+
+            return emit(TokenType::ERROR);
+        }
+    private:
+        bool to_eof { false };
     };
 
     template<typename IStream>
