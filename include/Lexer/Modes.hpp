@@ -310,8 +310,6 @@ namespace cpplang
         using type = Operators<IStream>;
         using CharacterCollection = typename Mode<IStream>::CharacterCollection;
         using Union = typename Mode<IStream>::Union;
-        using Mode<IStream>::context;
-        using Mode<IStream>::emit;
 
         const char* name() override
         {
@@ -325,30 +323,259 @@ namespace cpplang
                 return this->template transition<IsEOF<IStream>>();
             }
 
-            auto start_pos = context.get_current_position().value_or(Position {});
-            std::string output;
+            auto start_pos = this->context.get_current_position().value_or(Position {});
 
-            if (this->match('+'))
+            if (this->match('\n'))
             {
-                context.advance();
+                this->context.advance();
+                return emit_operator(TokenType::NEWLINE);
+            }
+            else if (this->match('.'))
+            {
+                this->context.advance();
+                return emit_operator(TokenType::DOT);
+            }
+            else if (this->match(','))
+            {
+                this->context.advance();
+                return emit_operator(TokenType::COMMA);
+            }
+            else if (this->match(':'))
+            {
+                this->context.advance();
+                return emit_operator(TokenType::COLON);
+            }
+            else if (this->match('+'))
+            {
+                this->context.advance();
                 if (this->match('='))
                 {
-                    context.advance();
-                    this->to_eof = true;
-                    return emit(TokenType::PLUS_ASSIGN, start_pos);
+                    this->context.advance();
+                    return emit_operator(TokenType::PLUS_ASSIGN, start_pos);
                 }
                 else
                 {
-                    this->to_eof = true;
-                    return emit(TokenType::PLUS);
+                    return emit_operator(TokenType::PLUS);
                 }
-                
+            }
+            else if (this->match('-'))
+            {
+                this->context.advance();
+                if (this->match('='))
+                {
+                    this->context.advance();
+                    return emit_operator(TokenType::MINUS_ASSIGN);
+                }
+                else
+                {
+                    return emit_operator(TokenType::MINUS);
+                }
+            }
+            else if (this->match('*'))
+            {
+                this->context.advance();
+                if (this->match('*'))
+                {
+                    this->context.advance();
+                    if (this->match('='))
+                    {
+                        this->context.advance();
+                        return emit_operator(TokenType::EXPONENT_ASSIGN, start_pos);
+                    }
+                    else
+                    {
+                        return emit_operator(TokenType::EXPONENT, start_pos);
+                    }
+                }
+                else if (this->match('='))
+                {
+                    this->context.advance();
+                    return emit_operator(TokenType::MULTIPLY_ASSIGN, start_pos);
+                }
+                else
+                {
+                    return emit_operator(TokenType::MULTIPLY);
+                }
+            }
+            else if (this->match('/'))
+            {
+                this->context.advance();
+                if (this->match('='))
+                {
+                    this->context.advance();
+                    return emit_operator(TokenType::DIVIDE_ASSIGN, start_pos);
+                }
+                else
+                {
+                    return emit_operator(TokenType::DIVIDE);
+                }
+            }
+            else if (this->match('%'))
+            {
+                this->context.advance();
+                if (this->match('='))
+                {
+                    this->context.advance();
+                    return emit_operator(TokenType::MODULO_ASSIGN, start_pos);
+                }
+                else
+                {
+                    return emit_operator(TokenType::MODULO);
+                }
+            }
+
+            else if (this->match('='))
+            {
+                this->context.advance();
+                if (this->match('='))
+                {
+                    this->context.advance();
+                    return emit_operator(TokenType::EQ, start_pos);
+                }
+                else
+                {
+                    return emit_operator(TokenType::ASSIGN);
+                }
+            }
+
+            else if (this->match('<'))
+            {
+                this->context.advance();
+                if (this->match('='))
+                {
+                    this->context.advance();
+                    return emit_operator(TokenType::LT_EQ, start_pos);
+                }
+                else
+                {
+                    return emit_operator(TokenType::LT);
+                }
+            }
+
+            else if (this->match('>'))
+            {
+                this->context.advance();
+                if (this->match('='))
+                {
+                    this->context.advance();
+                    return emit_operator(TokenType::GT_EQ, start_pos);
+                }
+                else
+                {
+                    return emit_operator(TokenType::GT);
+                }
+            }
+
+            else if (this->match('!'))
+            {
+                this->context.advance();
+                if (this->match('='))
+                {
+                    this->context.advance();
+                    return emit_operator(TokenType::NE, start_pos);
+                }
+                else
+                {
+                    return emit_operator(TokenType::ERROR);
+                }
+            }
+
+            else if (this->match('('))
+            {
+                this->context.advance();
+                this->context.push_bracket(*this->context.get_current_char());
+                return emit_operator(TokenType::LPAREN);
+            }
+            else if (this->match(')'))
+            {
+                this->context.advance();
+                auto bracket = this->context.pop_bracket();
+                if (!bracket)
+                {
+                    to_eof = true;
+                    return Token { TokenType::ERROR, start_pos, "Unbalanced brackets, expected '('" };
+                }
+                if (*bracket == '(')
+                {
+                    return emit_operator(TokenType::RPAREN);
+                }
+                else
+                {
+                    to_eof = true;
+                    return Token { TokenType::ERROR, start_pos, "Expected '(', got " + *bracket };
+                }
+            }
+
+            else if (this->match('{'))
+            {
+                this->context.advance();
+                this->context.push_bracket(*this->context.get_current_char());
+                return emit_operator(TokenType::LBRACE);
+            }
+            else if (this->match('}'))
+            {
+                this->context.advance();
+                auto bracket = this->context.pop_bracket();
+                if (!bracket)
+                {
+                    to_eof = true;
+                    return Token { TokenType::ERROR, start_pos, "Unbalanced brackets, expected '{'" };
+                }
+                if (*bracket == '{')
+                {
+                    return emit_operator(TokenType::RBRACE);
+                }
+                else
+                {
+                    to_eof = true;
+                    return Token { TokenType::ERROR, start_pos, "Expected '{', got " + *bracket };
+                }
+            }
+
+            else if (this->match('['))
+            {
+                this->context.advance();
+                this->context.push_bracket(*this->context.get_current_char());
+                return emit_operator(TokenType::LSQUARE);
+            }
+            else if (this->match(']'))
+            {
+                this->context.advance();
+                auto bracket = this->context.pop_bracket();
+                if (!bracket)
+                {
+                    to_eof = true;
+                    return Token { TokenType::ERROR, start_pos, "Unbalanced brackets, expected '['" };
+                }
+                if (*bracket == '[')
+                {
+                    return emit_operator(TokenType::RSQUARE);
+                }
+                else
+                {
+                    to_eof = true;
+                    return Token { TokenType::ERROR, start_pos, "Expected '{', got " + *bracket };
+                }
             }
 
             return emit(TokenType::ERROR);
         }
     private:
         bool to_eof { false };
+
+        Token emit_operator(TokenType type, Position position)
+        {
+            this->to_eof = true;
+
+            return this->emit(type, position);
+        }
+
+        Token emit_operator(TokenType type)
+        {
+            this->to_eof = true;
+
+            return emit(type);
+        }
     };
 
     template<typename IStream>
