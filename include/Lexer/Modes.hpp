@@ -218,6 +218,7 @@ namespace cpplang
         using Mode<IStream>::Tok;
         using Mode<IStream>::ModePtr;
         using Mode<IStream>::Union;
+        using Mode<IStream>::context;
 
         const char* name() override
         {
@@ -226,9 +227,9 @@ namespace cpplang
 
         typename Mode<IStream>::Union step() override
         {
-            this->context.advance();
-            this->context.advance();
-            this->context.push_indent(0);
+            context.advance();
+            context.advance();
+            context.push_indent(0);
 
             auto mode = this->template transition<IsEOF<IStream>>();
 
@@ -248,6 +249,7 @@ namespace cpplang
         using Mode<IStream>::Tok;
         using Mode<IStream>::ModePtr;
         using Mode<IStream>::Union;
+        using Mode<IStream>::context;
 
         const char* name() override
         {
@@ -274,6 +276,7 @@ namespace cpplang
         using Mode<IStream>::Tok;
         using Mode<IStream>::ModePtr;
         using Mode<IStream>::Union;
+        using Mode<IStream>::context;
 
         const char* name() override
         {
@@ -293,6 +296,7 @@ namespace cpplang
         using Mode<IStream>::Tok;
         using Mode<IStream>::ModePtr;
         using Mode<IStream>::Union;
+        using Mode<IStream>::context;
 
         const char* name() override
         {
@@ -319,6 +323,7 @@ namespace cpplang
         using Mode<IStream>::Tok;
         using Mode<IStream>::ModePtr;
         using Mode<IStream>::Union;
+        using Mode<IStream>::context;
 
         const char* name() override
         {
@@ -338,6 +343,7 @@ namespace cpplang
         using Mode<IStream>::Tok;
         using Mode<IStream>::ModePtr;
         using Mode<IStream>::Union;
+        using Mode<IStream>::context;
 
         const char* name() override
         {
@@ -357,6 +363,7 @@ namespace cpplang
         using Mode<IStream>::Tok;
         using Mode<IStream>::ModePtr;
         using Mode<IStream>::Union;
+        using Mode<IStream>::context;
 
         const char* name() override
         {
@@ -376,6 +383,7 @@ namespace cpplang
         using Mode<IStream>::Tok;
         using Mode<IStream>::ModePtr;
         using Mode<IStream>::Union;
+        using Mode<IStream>::context;
 
         const char* name() override
         {
@@ -395,6 +403,7 @@ namespace cpplang
         using Mode<IStream>::Tok;
         using Mode<IStream>::ModePtr;
         using Mode<IStream>::Union;
+        using Mode<IStream>::context;
 
         const char* name() override
         {
