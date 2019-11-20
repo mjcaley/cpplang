@@ -13,7 +13,7 @@ TEST_CASE("Plus token", "[lexer][modes][operators]")
     auto context = context_at_current("+");
     cpplang::Operators operators { context };
     auto result = operators.step();
-    auto token = std::get<decltype(operators)::Tok>(result);
+    auto token = std::get<cpplang::Token>(result);
 
     REQUIRE(token.type == cpplang::TokenType::PLUS);
 }

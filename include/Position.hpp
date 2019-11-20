@@ -1,22 +1,21 @@
 #pragma once
 
 namespace cpplang {
-    template<typename Index>
     struct Position {
         Position() : m_line(0), m_column(0) {};
 
-        Position(Index line, Index column) : m_line(line), m_column(column) {};
+        Position(std::size_t line, std::size_t column) : m_line(line), m_column(column) {};
 
-        [[nodiscard]] Index line() const {
+        [[nodiscard]] std::size_t line() const {
             return m_line;
         }
 
-        [[nodiscard]] Index column() const {
+        [[nodiscard]] std::size_t column() const {
             return m_column;
         }
 
     private:
-        Index m_line;
-        Index m_column;
+        std::size_t m_line;
+        std::size_t m_column;
     };
 }

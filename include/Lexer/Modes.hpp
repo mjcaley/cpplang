@@ -23,10 +23,8 @@ namespace cpplang
         explicit Mode(Context<IStream>& context) : context(context) {}
 
         using CharacterCollection = std::vector<typename Context<IStream>::Char>;
-        using Pos = typename Context<IStream>::Pos;
-        using Tok = cpplang::Token<Pos>;
         using ModePtr = std::unique_ptr<cpplang::Mode<IStream>>;
-        using Union = std::variant<Tok, ModePtr>;
+        using Union = std::variant<Token, ModePtr>;
 
         virtual const char* name()
         {
@@ -43,23 +41,23 @@ namespace cpplang
     protected:
         Context<IStream>& context;
 
-        Tok emit(TokenType type, Pos position, std::string value)
+        Token emit(TokenType type, Position position, std::string value)
         {
-            return Tok { type, position, value };
+            return Token { type, position, value };
         }
 
-        Tok emit(TokenType type, Pos position)
+        Token emit(TokenType type, Position position)
         {
             return emit(type, position, "");
         }
 
-        Tok emit(TokenType type, std::string value)
+        Token emit(TokenType type, std::string value)
         {
-            auto pos = context.get_current_position().value_or(Pos {});
+            auto pos = context.get_current_position().value_or(Position {});
             return emit(type, pos, value);
         }
 
-        Tok emit(TokenType type)
+        Token emit(TokenType type)
         {
             return emit(type, "");
         }
@@ -214,8 +212,6 @@ namespace cpplang
 
         using type = Start<IStream>;
         using Mode<IStream>::CharacterCollection;
-        using Mode<IStream>::Pos;
-        using Mode<IStream>::Tok;
         using Mode<IStream>::ModePtr;
         using Mode<IStream>::Union;
         using Mode<IStream>::context;
@@ -245,8 +241,6 @@ namespace cpplang
 
         using type = Indent<IStream>;
         using Mode<IStream>::CharacterCollection;
-        using Mode<IStream>::Pos;
-        using Mode<IStream>::Tok;
         using Mode<IStream>::ModePtr;
         using Mode<IStream>::Union;
         using Mode<IStream>::context;
@@ -272,8 +266,6 @@ namespace cpplang
 
         using type = Dedent<IStream>;
         using Mode<IStream>::CharacterCollection;
-        using Mode<IStream>::Pos;
-        using Mode<IStream>::Tok;
         using Mode<IStream>::ModePtr;
         using Mode<IStream>::Union;
         using Mode<IStream>::context;
@@ -292,8 +284,6 @@ namespace cpplang
 
         using type = IsEOF<IStream>;
         using Mode<IStream>::CharacterCollection;
-        using Mode<IStream>::Pos;
-        using Mode<IStream>::Tok;
         using Mode<IStream>::ModePtr;
         using Mode<IStream>::Union;
         using Mode<IStream>::context;
@@ -318,8 +308,6 @@ namespace cpplang
         explicit Operators(Context<IStream>& context) : Mode<IStream>(context) {}
 
         using type = Operators<IStream>;
-        using Pos = typename Mode<IStream>::Pos;
-        using Tok = typename Mode<IStream>::Tok;
         using CharacterCollection = typename Mode<IStream>::CharacterCollection;
         using Union = typename Mode<IStream>::Union;
         using Mode<IStream>::context;
@@ -337,7 +325,7 @@ namespace cpplang
                 return this->template transition<IsEOF<IStream>>();
             }
 
-            auto start_pos = context.get_current_position().value_or(Pos {});
+            auto start_pos = context.get_current_position().value_or(Position {});
             std::string output;
 
             if (this->match('+'))
@@ -371,8 +359,6 @@ namespace cpplang
 
         using type = Number<IStream>;
         using Mode<IStream>::CharacterCollection;
-        using Mode<IStream>::Pos;
-        using Mode<IStream>::Tok;
         using Mode<IStream>::ModePtr;
         using Mode<IStream>::Union;
         using Mode<IStream>::context;
@@ -391,8 +377,6 @@ namespace cpplang
 
         using type = String<IStream>;
         using Mode<IStream>::CharacterCollection;
-        using Mode<IStream>::Pos;
-        using Mode<IStream>::Tok;
         using Mode<IStream>::ModePtr;
         using Mode<IStream>::Union;
         using Mode<IStream>::context;
@@ -411,8 +395,6 @@ namespace cpplang
 
         using type = Word<IStream>;
         using Mode<IStream>::CharacterCollection;
-        using Mode<IStream>::Pos;
-        using Mode<IStream>::Tok;
         using Mode<IStream>::ModePtr;
         using Mode<IStream>::Union;
         using Mode<IStream>::context;
@@ -431,8 +413,6 @@ namespace cpplang
 
         using type = End<IStream>;
         using Mode<IStream>::CharacterCollection;
-        using Mode<IStream>::Pos;
-        using Mode<IStream>::Tok;
         using Mode<IStream>::ModePtr;
         using Mode<IStream>::Union;
         using Mode<IStream>::context;

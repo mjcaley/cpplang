@@ -10,14 +10,14 @@
 
 namespace cpplang
 {
-    template<typename Char, typename Pos>
+    template<typename Char>
     struct Character
     {
         Character() : character('\0'), position({ 1, 1 }) {};
-        Character(const Char character, const Pos position) : character(character), position(position) {};
+        Character(const Char character, const Position position) : character(character), position(position) {};
 
         Char character;
-        Pos position;
+        Position position;
     };
 
     template<typename IStream>
@@ -36,8 +36,7 @@ namespace cpplang
 
         using Char = typename IStream::char_type;
         using Index = typename IStream::int_type;
-        using Pos = typename cpplang::Position<Index>;
-        using CharacterCls = typename cpplang::Character<Char, Pos>;
+        using CharacterCls = typename cpplang::Character<Char>;
 
         [[nodiscard]] std::optional<CharacterCls> get_current() const
         {
@@ -56,7 +55,7 @@ namespace cpplang
             }
         }
 
-        std::optional<Pos> get_current_position() const
+        std::optional<Position> get_current_position() const
         {
             if (current)
             {
@@ -90,7 +89,7 @@ namespace cpplang
             }
         }
 
-        std::optional<Pos> get_next_position() const
+        std::optional<Position> get_next_position() const
         {
             if (next)
             {
