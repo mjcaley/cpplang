@@ -9,14 +9,16 @@ std::string empty;
 
 TEST_CASE("Start mode returns string", "[lexer][modes]")
 {
-    cpplang::Start start { context_at_current(empty) };
+    auto context = context_at_current(empty);
+    cpplang::Start start { context };
 
     REQUIRE(std::strcmp(start.name(), "Start") == 0);
 }
 
 TEST_CASE("Start mode transitions to IsEOF", "[lexer][modes]")
 {
-    cpplang::Start start { context_at_current(empty) };
+    auto context = context_at_current(empty);
+    cpplang::Start start { context };
     auto result = start.step();
     auto iseof = std::get_if<decltype(start)::ModePtr>(&result);
     REQUIRE(iseof);
