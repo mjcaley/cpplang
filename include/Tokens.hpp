@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <utility>
 
 
 namespace cpplang
@@ -76,8 +77,8 @@ namespace cpplang
     class Token
     {
     public:
-        Token(TokenType type, Position Position, std::string value) : type(type), position(position), value(value) {}
-        Token(TokenType type, Position Position) : type(type), position(position), value({}) {}
+        Token(TokenType type, Position position, std::string value) : type(type), position(position), value(std::move(value)) {}
+        Token(TokenType type, Position position) : type(type), position(position), value({}) {}
 
         TokenType type;
         Position position;
