@@ -12,96 +12,102 @@ TEST_CASE("Base state", "[lexer][states]")
     {
         auto context = context_at_current(input);
         PublicMode state { context };
-        auto result = state.public_append_while({'a'});
+        auto result = state.append_while({'a'});
 
         REQUIRE(result == "a");
-        REQUIRE(*state.get_context().get_current_char() == 'b');
+        REQUIRE(*state.context.get_current_char() == 'b');
     }
 
     SECTION("append_while multiple characters")
     {
         auto context = context_at_current(input);
         PublicMode state { context };
-        auto result = state.public_append_while({'a', 'b'});
+        std::vector<char> match {'a', 'b'};
+        auto result = state.append_while(std::begin(match), std::end(match));
 
         REQUIRE(result == "ab");
-        REQUIRE(*state.get_context().get_current_char() == 'c');
+        REQUIRE(*state.context.get_current_char() == 'c');
     }
 
     SECTION("append_while all characters in input")
     {
         auto context = context_at_current(input);
         PublicMode state { context };
-        auto result = state.public_append_while({'a', 'b', 'c'});
+        std::vector<char> match {'a', 'b', 'c'};
+        auto result = state.append_while(std::begin(match), std::end(match));
 
         REQUIRE(result == "abc");
-        REQUIRE(state.get_context().get_current().has_value() == false);
+        REQUIRE(state.context.get_current().has_value() == false);
     }
 
     SECTION("append_while_not single character")
     {
         auto context = context_at_current(input);
         PublicMode state { context };
-        auto result = state.public_append_while_not({'c'});
+        auto result = state.append_while_not('c');
 
         REQUIRE(result == "ab");
-        REQUIRE(*state.get_context().get_current_char() == 'c');
+        REQUIRE(*state.context.get_current_char() == 'c');
     }
 
     SECTION("append_while_not multiple characters")
     {
         auto context = context_at_current(input);
         PublicMode state { context };
-        auto result = state.public_append_while_not({'b', 'c'});
+        std::vector<char> match {'b', 'c'};
+        auto result = state.append_while_not(std::begin(match), std::end(match));
 
         REQUIRE(result == "a");
-        REQUIRE(*state.get_context().get_current_char() == 'b');
+        REQUIRE(*state.context.get_current_char() == 'b');
     }
 
     SECTION("append_while_not all characters in input")
     {
         auto context = context_at_current(input);
         PublicMode state { context };
-        auto result = state.public_append_while_not({'a', 'b', 'c'});
+        std::vector<char> match {'a', 'b', 'c'};
+        auto result = state.append_while_not(std::begin(match), std::end(match));
 
         REQUIRE(result.empty());
-        REQUIRE(*state.get_context().get_current_char() == 'a');
+        REQUIRE(*state.context.get_current_char() == 'a');
     }
 
     SECTION("skip_until one character")
     {
         auto context = context_at_current(input);
         PublicMode state { context };
-        state.public_skip_until({'b'});
+        state.skip_until('b');
 
-        REQUIRE(*state.get_context().get_current_char() == 'b');
+        REQUIRE(*state.context.get_current_char() == 'b');
     }
 
     SECTION("skip_until multiple characters")
     {
         auto context = context_at_current(input);
         PublicMode state { context };
-        state.public_skip_until({'b', 'c'});
+        std::vector<char> match {'b', 'c'};
+        state.skip_until(std::begin(match), std::end(match));
 
-        REQUIRE(*state.get_context().get_current_char() == 'b');
+        REQUIRE(*state.context.get_current_char() == 'b');
     }
 
     SECTION("skip_while one character")
     {
         auto context = context_at_current(input);
         PublicMode state { context };
-        state.public_skip_while({'a'});
+        state.skip_while('a');
 
-        REQUIRE(*state.get_context().get_current_char() == 'b');
+        REQUIRE(*state.context.get_current_char() == 'b');
     }
 
     SECTION("skip_while multiple characters")
     {
         auto context = context_at_current(input);
         PublicMode state { context };
-        state.public_skip_while({'a', 'b'});
+        std::vector<char> match {'a', 'b'};
+        state.skip_while(std::begin(match), std::end(match));
 
-        REQUIRE(*state.get_context().get_current_char() == 'c');
+        REQUIRE(*state.context.get_current_char() == 'c');
     }
 
     SECTION("match doesn't match")
@@ -109,7 +115,7 @@ TEST_CASE("Base state", "[lexer][states]")
         auto context = context_at_current(input);
         PublicMode state {context};
 
-        REQUIRE_FALSE(state.public_match('d'));
+        REQUIRE_FALSE(state.match('d'));
     }
 
     SECTION("match matches")
@@ -117,7 +123,7 @@ TEST_CASE("Base state", "[lexer][states]")
         auto context = context_at_current(input);
         PublicMode state {context};
 
-        REQUIRE(state.public_match('a'));
+        REQUIRE(state.match('a'));
     }
 
     SECTION("match doesn't match collection")
@@ -125,7 +131,8 @@ TEST_CASE("Base state", "[lexer][states]")
         auto context = context_at_current(input);
         PublicMode state {context};
 
-        REQUIRE_FALSE(state.public_match({'d', 'e'}));
+        std::vector<char> match {'d', 'e'};
+        REQUIRE_FALSE(state.match(std::begin(match), std::end(match)));
     }
 
     SECTION("match matches collection")
@@ -133,7 +140,8 @@ TEST_CASE("Base state", "[lexer][states]")
         auto context = context_at_current(input);
         PublicMode state {context};
 
-        REQUIRE(state.public_match({'a', 'b', 'c'}));
+        std::vector<char> match {'a', 'b', 'c'};
+        REQUIRE(state.match(std::begin(match), std::end(match)));
     }
 
     SECTION("match_next doesn't match")
@@ -141,7 +149,7 @@ TEST_CASE("Base state", "[lexer][states]")
         auto context = context_at_current(input);
         PublicMode state {context};
 
-        REQUIRE_FALSE(state.public_match_next('d'));
+        REQUIRE_FALSE(state.match_next('d'));
     }
 
     SECTION("match_next matches")
@@ -149,7 +157,7 @@ TEST_CASE("Base state", "[lexer][states]")
         auto context = context_at_current(input);
         PublicMode state {context};
 
-        REQUIRE(state.public_match_next('b'));
+        REQUIRE(state.match_next('b'));
     }
 
     SECTION("match_next doesn't match collection")
@@ -157,7 +165,8 @@ TEST_CASE("Base state", "[lexer][states]")
         auto context = context_at_current(input);
         PublicMode state {context};
 
-        REQUIRE_FALSE(state.public_match_next({'d', 'e'}));
+        std::vector<char> match {'d', 'e'};
+        REQUIRE_FALSE(state.match_next(std::begin(match), std::end(match)));
     }
 
     SECTION("match_next matches collection")
@@ -165,7 +174,8 @@ TEST_CASE("Base state", "[lexer][states]")
         auto context = context_at_current(input);
         PublicMode state {context};
 
-        REQUIRE(state.public_match_next({'a', 'b', 'c'}));
+        std::vector<char> match {'a', 'b', 'c'};
+        REQUIRE(state.match_next(std::begin(match), std::end(match)));
     }
 }
 
@@ -177,7 +187,7 @@ TEST_CASE("Base state empty string", "[lexer][states]")
     {
         auto context = context_at_current(input);
         PublicMode state {context};
-        auto result = state.public_append_while({'a'});
+        auto result = state.append_while('a');
 
         REQUIRE(result.empty());
     }
@@ -191,9 +201,9 @@ TEST_CASE("Base state whitespace", "[lexer][state]")
     {
         auto context = context_at_current(input);
         PublicMode state {context};
-        state.public_skip_whitespace();
+        state.skip_whitespace();
 
-        REQUIRE(state.get_context().get_current_char() == 'a');
+        REQUIRE(state.context.get_current_char() == 'a');
     }
 }
 

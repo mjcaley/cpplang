@@ -12,6 +12,7 @@
 #include "Lexer/Context.hpp"
 #include "Tokens.hpp"
 #include "Context.hpp"
+#include "utilities/make_array.hpp"
 
 
 namespace cpplang
@@ -22,7 +23,10 @@ namespace cpplang
     public:
         explicit Mode(Context<IStream>& context) : context(context) {}
 
-        using CharacterCollection = std::vector<typename Context<IStream>::Char>;
+        static constexpr auto whitespace = detail::make_array<typename Context<IStream>::Char>('\v', '\f', ' ');
+        static constexpr auto digits = detail::make_array<typename Context<IStream>::Char>('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
+
+        using Char = typename Context<IStream>::Char;
         using ModePtr = std::unique_ptr<cpplang::Mode<IStream>>;
         using Union = std::variant<Token, ModePtr>;
 
@@ -68,78 +72,98 @@ namespace cpplang
             return std::make_unique<NextMode>(context);
         }
 
-        static constexpr std::array<typename Context<IStream>::Char, 3> whitespace { '\v', '\f', ' ' };
-
-        std::string append_while(const CharacterCollection& characters)
+        std::string append_while(Char character)
         {
             std::string found;
-            while (context.get_current()) {
+            while (match(character))
+            {
                 auto current = *context.get_current_char();
-                auto result = std::find(std::begin(characters), std::end(characters), current);
-                if (result != std::end(characters)) {
-                    found += current;
-                    context.advance();
-                } else {
-                    break;
-                }
+                found += current;
+                context.advance();
             }
 
             return found;
         }
 
-        std::string append_while_not(const CharacterCollection& characters)
+        template<typename CharIterator, typename = std::enable_if_t< std::is_same_v<typename std::iterator_traits<CharIterator>::value_type, Char> >>
+        std::string append_while(CharIterator begin, CharIterator end)
         {
             std::string found;
-            while (context.get_current()) {
+            while (match(begin, end)) {
                 auto current = *context.get_current_char();
-                auto result = std::find(std::begin(characters), std::end(characters), current);
-                if (result == std::end(characters)) {
-                    found += current;
-                    context.advance();
-                } else {
-                    break;
-                }
+                found += current;
+                context.advance();
             }
 
             return found;
         }
 
-        void skip_until(const CharacterCollection& characters)
+        std::string append_while_not(Char character)
         {
-            while (context.get_current()) {
+            std::string found;
+            while (!match(character))
+            {
                 auto current = *context.get_current_char();
-                auto result = std::find(std::begin(characters), std::end(characters), current);
-                if (result == std::end(characters)) {
-                    context.advance();
-                } else {
-                    break;
-                }
+                found += current;
+                context.advance();
+            }
+
+            return found;
+        }
+
+        template<typename CharIterator, typename = std::enable_if_t< std::is_same_v<typename std::iterator_traits<CharIterator>::value_type, Char> >>
+        std::string append_while_not(CharIterator begin, CharIterator end)
+        {
+            std::string found;
+            while (!match(begin, end))
+            {
+                auto current = *context.get_current_char();
+                found += current;
+                context.advance();
+            }
+
+            return found;
+        }
+
+        void skip_until(Char character)
+        {
+            while (!match(character))
+            {
+                context.advance();
             }
         }
 
-        void skip_while(const CharacterCollection& characters)
+        template<typename CharIterator, typename = std::enable_if_t< std::is_same_v<typename std::iterator_traits<CharIterator>::value_type, Char> >>
+        void skip_until(CharIterator begin, CharIterator end)
         {
-            while (context.get_current()) {
-                auto current = *context.get_current_char();
-                auto result = std::find(std::begin(characters), std::end(characters), current);
-                if (result != std::end(characters)) {
-                    context.advance();
-                } else {
-                    break;
-                }
+            while (!match(begin, end))
+            {
+                context.advance();
+            }
+        }
+
+        void skip_while(Char character)
+        {
+            while (match(character))
+            {
+                context.advance();
+            }
+        }
+
+        template<typename CharIterator, typename = std::enable_if_t< std::is_same_v<typename std::iterator_traits<CharIterator>::value_type, Char> >>
+        void skip_while(CharIterator begin, CharIterator end)
+        {
+            while (match(begin, end))
+            {
+                context.advance();
             }
         }
 
         void skip_whitespace()
         {
-            while (context.get_current()) {
-                auto current = *context.get_current_char();
-                auto result = std::find(std::begin(whitespace), std::end(whitespace), current);
-                if (result != std::end(whitespace)) {
-                    context.advance();
-                } else {
-                    break;
-                }
+            while (match(std::begin(whitespace), std::end(whitespace)))
+            {
+                context.advance();
             }
         }
 
@@ -155,12 +179,13 @@ namespace cpplang
             }
         }
 
-        bool match(const CharacterCollection& characters)
+        template<typename CharIterator, typename = std::enable_if_t< std::is_same_v<typename std::iterator_traits<CharIterator>::value_type, Char> >>
+        bool match(CharIterator begin, CharIterator end)
         {
             if (context.get_current_char())
             {
-                auto result = std::find(std::begin(characters), std::end(characters), *context.get_current_char());
-                return result != std::end(characters);
+                auto result = std::find(begin, end, *context.get_current_char());
+                return result != end;
             }
             else
             {
@@ -180,12 +205,13 @@ namespace cpplang
             }
         }
 
-        bool match_next(const CharacterCollection& characters)
+        template<typename CharIterator, typename = std::enable_if_t< std::is_same_v<typename std::iterator_traits<CharIterator>::value_type, Char> >>
+        bool match_next(CharIterator begin, CharIterator end)
         {
             if (context.get_next_char())
             {
-                auto result = std::find(std::begin(characters), std::end(characters), *context.get_next_char());
-                return result != std::end(characters);
+                auto result = std::find(begin, end, *context.get_next_char());
+                return result != end;
             }
             else
             {
@@ -211,10 +237,8 @@ namespace cpplang
         explicit Start(Context<IStream>& context) : Mode<IStream>(context) {}
 
         using type = Start<IStream>;
-        using Mode<IStream>::CharacterCollection;
         using Mode<IStream>::ModePtr;
         using Mode<IStream>::Union;
-        using Mode<IStream>::context;
 
         const char* name() override
         {
@@ -240,10 +264,8 @@ namespace cpplang
         explicit Indent(Context<IStream>& context) : Mode<IStream>(context) {}
 
         using type = Indent<IStream>;
-        using Mode<IStream>::CharacterCollection;
         using Mode<IStream>::ModePtr;
         using Mode<IStream>::Union;
-        using Mode<IStream>::context;
 
         const char* name() override
         {
@@ -265,7 +287,6 @@ namespace cpplang
         explicit Dedent(Context<IStream>& context) : Mode<IStream>(context) {}
 
         using type = Dedent<IStream>;
-        using Mode<IStream>::CharacterCollection;
         using Mode<IStream>::ModePtr;
         using Mode<IStream>::Union;
         using Mode<IStream>::context;
@@ -283,10 +304,8 @@ namespace cpplang
         explicit IsEOF(Context<IStream>& context) : Mode<IStream>(context) {}
 
         using type = IsEOF<IStream>;
-        using Mode<IStream>::CharacterCollection;
         using Mode<IStream>::ModePtr;
         using Mode<IStream>::Union;
-        using Mode<IStream>::context;
 
         const char* name() override
         {
@@ -308,7 +327,6 @@ namespace cpplang
         explicit Operators(Context<IStream>& context) : Mode<IStream>(context) {}
 
         using type = Operators<IStream>;
-        using CharacterCollection = typename Mode<IStream>::CharacterCollection;
         using Union = typename Mode<IStream>::Union;
 
         const char* name() override
@@ -558,8 +576,20 @@ namespace cpplang
                 }
             }
 
-            return emit(TokenType::ERROR);
+            else if (this->match('"'))
+            {
+                return this->template transition<String<IStream>>();
+            }
+            else if (this->match(std::begin(digits), std::end(digits)))
+            {
+                return this->template transition<Number<IStream>>();
+            }
+            else
+            {
+                return this->template transition<Word<IStream>>();
+            }
         }
+
     private:
         bool to_eof { false };
 
@@ -585,7 +615,6 @@ namespace cpplang
         explicit Number(Context<IStream>& context) : Mode<IStream>(context) {}
 
         using type = Number<IStream>;
-        using Mode<IStream>::CharacterCollection;
         using Mode<IStream>::ModePtr;
         using Mode<IStream>::Union;
         using Mode<IStream>::context;
@@ -603,7 +632,6 @@ namespace cpplang
         explicit String(Context<IStream>& context) : Mode<IStream>(context) {}
 
         using type = String<IStream>;
-        using Mode<IStream>::CharacterCollection;
         using Mode<IStream>::ModePtr;
         using Mode<IStream>::Union;
         using Mode<IStream>::context;
@@ -621,10 +649,8 @@ namespace cpplang
         explicit Word(Context<IStream>& context) : Mode<IStream>(context) {}
 
         using type = Word<IStream>;
-        using Mode<IStream>::CharacterCollection;
         using Mode<IStream>::ModePtr;
         using Mode<IStream>::Union;
-        using Mode<IStream>::context;
 
         const char* name() override
         {
@@ -639,10 +665,8 @@ namespace cpplang
         explicit End(Context<IStream>& context) : Mode<IStream>(context) {}
 
         using type = End<IStream>;
-        using Mode<IStream>::CharacterCollection;
         using Mode<IStream>::ModePtr;
         using Mode<IStream>::Union;
-        using Mode<IStream>::context;
 
         const char* name() override
         {
